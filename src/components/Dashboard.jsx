@@ -23,7 +23,7 @@ import {
   getAllIssues,
   deleteIssuesByIds,
 } from "../services/offlineIssueService";
-import { MASTER_KEY } from "../services/localAuthService";
+import { verifyMasterKey } from "../services/localAuthService";
 import { exportDashboardIssuesToExcel } from "../services/exportService";
 import ReturnBookDialog from "./ReturnBookDialog";
 
@@ -72,7 +72,7 @@ function Dashboard() {
   };
 
   const handleDeleteConfirm = async () => {
-    if (masterKey !== MASTER_KEY) {
+    if (!verifyMasterKey(masterKey)) {
       alert("Invalid Master Key");
       return;
     }

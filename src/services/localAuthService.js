@@ -69,6 +69,15 @@ export async function resetAdminPassword(number, newPassword, masterKey) {
   saveAdmins(admins);
 }
 
+/* --verify master key --*/
+export function verifyMasterKey(input) {
+  if (!MASTER_KEY) {
+    throw new Error("Master key not configured");
+  }
+  return input === MASTER_KEY;
+}
+
+
 
 /* ---------- session ---------- */
 export function isLoggedIn() {

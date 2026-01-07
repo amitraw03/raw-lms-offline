@@ -7,10 +7,7 @@ import {
   Stack
 } from "@mui/material";
 
-import {
-  setupInitialAdmin,
-  MASTER_KEY
-} from "../services/localAuthService";
+import { setupInitialAdmin, verifyMasterKey } from "../services/localAuthService";
 
 function CreateAdmin({ onDone }) {
   const [form, setForm] = useState({
@@ -31,7 +28,7 @@ function CreateAdmin({ onDone }) {
       return;
     }
 
-    if (form.masterKey !== MASTER_KEY) {
+    if (!verifyMasterKey(form.masterKey)) {
       setError("Invalid master key");
       return;
     }
