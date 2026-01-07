@@ -3,8 +3,8 @@ import bcrypt from "bcryptjs";
 const ADMINS_KEY = "raw_lms_admins";
 const SESSION_KEY = "raw_lms_session";
 
-/* 🔐 CHANGE THIS ONLY IF YOU WANT */
-export const MASTER_KEY = "RAW-LMS-2026";
+const MASTER_KEY = import.meta.env.VITE_MASTER_KEY;
+
 
 /* ---------- helpers ---------- */
 function getAdmins() {
