@@ -3,58 +3,34 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  base: "/raw-lms-offline/", // 🔑 VERY IMPORTANT
   plugins: [
     react(),
     VitePWA({
       registerType: "autoUpdate",
-
-      // ✅ ensures app works offline after first load
-      workbox: {
-        cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true,
-      },
-
-      // ✅ assets cached for offline
-      includeAssets: [
-        "favicon.svg",
-        "pwa-192x192.png",
-        "pwa-512x512.png"
-      ],
-
+      scope: "/raw-lms-offline/",
+      base: "/raw-lms-offline/",
+      includeAssets: ["favicon.svg"],
       manifest: {
-        name: "RAW-LMS",
-        short_name: "RAW-LMS",
-        description: "Pure Offline Library Management System",
-
+        name: "raw-LMS",
+        short_name: "raw-LMS",
+        description: "Offline Library Management System",
         theme_color: "#121212",
         background_color: "#121212",
-
         display: "standalone",
-
-        // 🔑 IMPORTANT FOR OFFLINE
-        start_url: ".",
-        scope: ".",
-
+        start_url: "/raw-lms-offline/",
         icons: [
           {
-            src: "pwa-192x192.png",
+            src: "/raw-lms-offline/pwa-192x192.png",
             sizes: "192x192",
-            type: "image/png",
-            purpose: "any"
+            type: "image/png"
           },
           {
-            src: "pwa-512x512.png",
+            src: "/raw-lms-offline/pwa-512x512.png",
             sizes: "512x512",
-            type: "image/png",
-            purpose:"any"
+            type: "image/png"
           }
         ]
-      },
-
-      // ✅ allows PWA install in dev (optional but useful)
-      devOptions: {
-        enabled: true
       }
     })
   ]
