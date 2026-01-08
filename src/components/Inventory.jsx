@@ -54,13 +54,12 @@ function Inventory() {
         Export Inventory
       </Button>
 
-      {/* ✅ SCROLL CONTAINER */}
+      {/* SCROLLABLE TABLE AREA */}
       <Paper
         sx={{
           mt: 2,
-          height: "60vh",
+          height: "70vh",
           overflowY: "auto",
-          overscrollBehavior: "contain",
           scrollbarWidth: "none",
           "&::-webkit-scrollbar": { display: "none" }
         }}
@@ -68,28 +67,43 @@ function Inventory() {
         <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
+              <TableCell>S.No</TableCell>
               <TableCell>AP No</TableCell>
-              <TableCell>AP Name</TableCell>
-              <TableCell>Held</TableCell>
-              <TableCell>Issued</TableCell>
+              <TableCell>Air Publication Description</TableCell>
+              <TableCell>Auth Qty</TableCell>
+              <TableCell>Held Qty</TableCell>
               <TableCell>Available</TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {rows.map(r => (
+            {rows.map((r, idx) => (
               <TableRow key={r.ap_no}>
+                <TableCell>{idx + 1}</TableCell>
+
                 <TableCell>{r.ap_no}</TableCell>
-                <TableCell>{r.ap_name}</TableCell>
-                <TableCell>{r.qty_held}</TableCell>
+
+                <TableCell
+                  title={r.ap_name}
+                  sx={{
+                    maxWidth: 420,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis"
+                  }}
+                >
+                  {r.ap_name}
+                </TableCell>
+
+                <TableCell>{r.qty_total}</TableCell>
                 <TableCell>{r.qty_issued}</TableCell>
-                <TableCell>{r.qty_held - r.qty_issued}</TableCell>
+                <TableCell>{r.qty_total - r.qty_issued}</TableCell>
               </TableRow>
             ))}
 
             {rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} align="center">
+                <TableCell colSpan={6} align="center">
                   No inventory data
                 </TableCell>
               </TableRow>

@@ -56,7 +56,7 @@ function BorrowHistory() {
       {/* ✅ SCROLL CONTAINER */}
       <Paper
         sx={{
-          height: "60vh",
+          height: "70vh",
           overflowY: "auto",
           overscrollBehavior: "contain",
           scrollbarWidth: "none",

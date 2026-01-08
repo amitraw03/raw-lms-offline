@@ -6,22 +6,36 @@ export async function uploadInventoryExcel(file) {
   const data = await file.arrayBuffer();
   const workbook = XLSX.read(data);
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(sheet);
+
+  // defval ensures empty cells are not skipped
+  const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
   const db = await getDb();
   const tx = db.transaction(STORE_INVENTORY, "readwrite");
   await tx.store.clear();
 
   for (const row of rows) {
-    if (!row.AP_No || !row.AP_Name || row.Qty_Held == null) {
-      throw new Error("Invalid Excel format");
-    }
+    const apNo =
+      row["AP NO."] ||
+      row["AP NO"] ||
+      row["AP_No"] ||
+      row["Ap No"];
+
+    const name =
+      row["Air Publication Description"] ||
+      row["Air Publication"] ||
+      row["AP Name"];
+
+    if (!apNo || !name) continue;
+
+    const authQty = Number(row["Auth Qty"] || 0);
+    const heldQty = Number(row["Held Qty"] || 0);
 
     await tx.store.put({
-      ap_no: String(row.AP_No).trim(),
-      ap_name: String(row.AP_Name).trim(),
-      qty_held: Number(row.Qty_Held),
-      qty_issued: 0
+      ap_no: String(apNo).trim(),
+      ap_name: String(name).trim(),
+      qty_total: authQty,
+      qty_issued: heldQty
     });
   }
 
@@ -56,13 +70,14 @@ export async function decrementIssued(apNo, qty = 1) {
 /* Export inventory snapshot */
 export async function exportInventoryExcel() {
   const rows = await getInventory();
+
   const ws = XLSX.utils.json_to_sheet(
     rows.map(r => ({
-      AP_No: r.ap_no,
-      AP_Name: r.ap_name,
-      Qty_Held: r.qty_held,
-      Qty_Issued: r.qty_issued,
-      Qty_Available: r.qty_held - r.qty_issued
+      "Air Publication Description": r.ap_name,
+      "AP NO.": r.ap_no,
+      "Auth Qty": r.qty_total,
+      "Held Qty": r.qty_issued,
+      "Available": r.qty_total - r.qty_issued
     }))
   );
 

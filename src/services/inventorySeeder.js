@@ -2,53 +2,48 @@ import { getDb, STORE_INVENTORY } from "../db/libraryDb";
 
 export async function seedInventoryIfEmpty() {
   const db = await getDb();
-  const tx = db.transaction(STORE_INVENTORY, "readonly");
-  const store = tx.objectStore(STORE_INVENTORY);
-
+  const store = db.transaction(STORE_INVENTORY, "readonly").objectStore(STORE_INVENTORY);
   const count = await store.count();
 
-  // ✅ Do nothing if inventory already exists
   if (count > 0) return;
 
   const seedData = [
     {
-      ap_no: "AP1001",
-      ap_name: "Operating Systems",
-      qty_held: 10,
-      qty_issued: 2
+      ap_no: "101B-2800-1A",
+      ap_name: "AMM VOL I",
+      qty_total: 2,
+      qty_issued: 0
     },
     {
-      ap_no: "AP1002",
-      ap_name: "Database Management Systems",
-      qty_held: 8,
+      ap_no: "101B-2800-1B",
+      ap_name: "AMM VOL II",
+      qty_total: 2,
       qty_issued: 1
     },
     {
-      ap_no: "AP1003",
-      ap_name: "Computer Networks",
-      qty_held: 12,
-      qty_issued: 5
+      ap_no: "101B-2800-1C",
+      ap_name: "AMM VOL III",
+      qty_total: 2,
+      qty_issued: 0
     },
     {
-      ap_no: "AP1004",
-      ap_name: "Data Structures",
-      qty_held: 15,
-      qty_issued: 4
+      ap_no: "101B-2800-1D",
+      ap_name: "AMM VOL IV",
+      qty_total: 2,
+      qty_issued: 2
     },
     {
-      ap_no: "AP1005",
-      ap_name: "Software Engineering",
-      qty_held: 6,
+      ap_no: "101B-2800-1E",
+      ap_name: "AMM VOL V",
+      qty_total: 2,
       qty_issued: 0
     }
   ];
 
-  const writeTx = db.transaction(STORE_INVENTORY, "readwrite");
-  const writeStore = writeTx.objectStore(STORE_INVENTORY);
-
-  for (const book of seedData) {
-    await writeStore.put(book);
+  const tx = db.transaction(STORE_INVENTORY, "readwrite");
+  for (const item of seedData) {
+    await tx.store.put(item);
   }
 
-  await writeTx.done;
+  await tx.done;
 }
