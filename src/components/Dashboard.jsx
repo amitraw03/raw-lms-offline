@@ -25,6 +25,7 @@ import {
 } from "../services/offlineIssueService";
 import { verifyMasterKey } from "../services/localAuthService";
 import { exportDashboardIssuesToExcel } from "../services/exportService";
+import { exportFullSync, importFullSync } from "../services/syncService";
 import ReturnBookDialog from "./ReturnBookDialog";
 
 const FILTERS = ["ALL", "ISSUED", "RETURNED"];
@@ -95,7 +96,7 @@ function Dashboard() {
     >
       <Typography variant="h6">Issues</Typography>
 
-      <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+      <Stack direction="row" spacing={1} sx={{ mb: 2, alignItems: "center" }}>
         {FILTERS.map((f) => (
           <Button
             key={f}
@@ -128,12 +129,49 @@ function Dashboard() {
           Export Filtered
         </Button>
 
-        {selectedIds.length > 0 && (
+        {/* 🔁 PUSH SYNC TO EXTREME RIGHT */}
+        <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
           <Button
-            color="error"
-            sx={{ ml: "auto" }}
-            onClick={() => setAskKey(true)}
+            size="small"
+            sx={{
+              backgroundColor: "#ea5151ff",
+              color: "#fff",
+              "&:hover": {
+                backgroundColor: "#f90000ff",
+              },
+            }}
+            onClick={exportFullSync}
           >
+            Sync ↻ Export
+          </Button>
+
+          <Button
+            component="label"
+            size="small"
+            sx={{
+              backgroundColor: "success.main",
+              color: "#fff",
+              "&:hover": {
+                backgroundColor: "success.dark",
+              },
+            }}
+          >
+            Sync ↻ Import
+            <input
+              hidden
+              type="file"
+              accept=".xlsx"
+              onChange={(e) => {
+                if (e.target.files?.length) {
+                  importFullSync(e.target.files[0]);
+                }
+              }}
+            />
+          </Button>
+        </Box>
+
+        {selectedIds.length > 0 && (
+          <Button color="error" onClick={() => setAskKey(true)}>
             DELETE ({selectedIds.length})
           </Button>
         )}

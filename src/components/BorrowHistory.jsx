@@ -9,14 +9,23 @@ import {
   TableBody,
   Paper,
   Chip,
-  TextField
+  TextField,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from "@mui/material";
 
-import { getAllIssues } from "../services/offlineIssueService";
+import { getAllIssues, deleteIssuesByIds } from "../services/offlineIssueService";
+import { verifyMasterKey } from "../services/localAuthService";
 
 function BorrowHistory() {
   const [rows, setRows] = useState([]);
   const [search, setSearch] = useState("");
+
+  const [askKey, setAskKey] = useState(false);
+  const [masterKey, setMasterKey] = useState("");
 
   const load = async () => {
     const all = await getAllIssues();
@@ -40,14 +49,49 @@ function BorrowHistory() {
     );
   }, [rows, search]);
 
+  /* ---------- DELETE ALL ---------- */
+  const handleDeleteAll = async () => {
+    if (!verifyMasterKey(masterKey)) {
+      alert("Invalid Master Key");
+      return;
+    }
+
+    const ids = rows.map(r => r.id);
+    await deleteIssuesByIds(ids);
+
+    setMasterKey("");
+    setAskKey(false);
+  };
+
   return (
     <Box sx={{ mt: 3 }}>
-      <Typography variant="h6">Return History</Typography>
+      {/* HEADER */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2
+        }}
+      >
+        <Typography variant="h6">Return History</Typography>
+
+        {rows.length > 0 && (
+          <Button
+            color="error"
+            size="small"
+            variant="outlined"
+            onClick={() => setAskKey(true)}
+          >
+            DELETE ALL
+          </Button>
+        )}
+      </Box>
 
       <TextField
         fullWidth
         size="small"
-        sx={{ my: 2 }}
+        sx={{ mb: 2 }}
         label="Search by AP No / AP Name / Borrower"
         value={search}
         onChange={e => setSearch(e.target.value)}
@@ -122,6 +166,26 @@ function BorrowHistory() {
           </TableBody>
         </Table>
       </Paper>
+
+      {/* ---------- MASTER KEY DIALOG ---------- */}
+      <Dialog open={askKey} onClose={() => setAskKey(false)}>
+        <DialogTitle>Admin Authorization</DialogTitle>
+        <DialogContent>
+          <TextField
+            type="password"
+            fullWidth
+            label="Enter Master Key"
+            value={masterKey}
+            onChange={e => setMasterKey(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAskKey(false)}>Cancel</Button>
+          <Button color="error" onClick={handleDeleteAll}>
+            Confirm Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

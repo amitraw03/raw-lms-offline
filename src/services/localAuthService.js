@@ -18,14 +18,16 @@ function saveAdmins(admins) {
 /* ---------- admin bootstrap ---------- */
 export async function setupInitialAdmin(name, number, password) {
   const admins = getAdmins();
-  if (admins.length > 0) {
-    throw new Error("Admin already exists");
+
+  if (admins.some(a => a.number === number)) {
+    throw new Error("Admin already exists with this number");
   }
 
   const hash = await bcrypt.hash(password, 10);
   admins.push({ name, number, hash });
   saveAdmins(admins);
 }
+
 
 /* ---------- login ---------- */
 export async function login(number, password) {

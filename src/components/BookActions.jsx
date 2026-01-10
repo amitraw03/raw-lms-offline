@@ -30,6 +30,10 @@ function BookActions() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
+  /* ---------- VALIDATION REGEX ---------- */
+  const nameRegex = /^[A-Z][a-zA-Z ]{0,11}$/; // capital first, max 12
+  const numberRegex = /^[a-zA-Z0-9]{0,10}$/; // alphanumeric, max 10
+
   /* ---------- LOAD INVENTORY ---------- */
   useEffect(() => {
     loadInventory();
@@ -53,8 +57,17 @@ function BookActions() {
       return;
     }
 
-    if (!issuedToName || !issuedToNumber) {
-      setError("Borrower details are required");
+    if (!nameRegex.test(issuedToName)) {
+      setError(
+        "Borrower name must start with a capital letter and be max 12 characters"
+      );
+      return;
+    }
+
+    if (!numberRegex.test(issuedToNumber) || issuedToNumber.length === 0) {
+      setError(
+        "Borrower number must be alphanumeric and max 10 characters"
+      );
       return;
     }
 
@@ -77,7 +90,7 @@ function BookActions() {
       status: "ISSUED",
     });
 
-    await incrementIssued(selectedBook.id, qty);
+    await incrementIssued(selectedBook.ap_no, qty);
 
     setLoading(false);
     setSuccess(true);
@@ -114,32 +127,17 @@ function BookActions() {
         renderOption={(props, option) => (
           <li
             {...props}
-            key={option.id}
+            key={option.ap_no}
             style={{
               display: "flex",
               alignItems: "flex-start",
               gap: "12px",
             }}
           >
-            {/* AP NO – fixed width */}
-            <span
-              style={{
-                width: "25%",
-                fontWeight: 600,
-                whiteSpace: "nowrap",
-              }}
-            >
+            <span style={{ width: "25%", fontWeight: 600, whiteSpace: "nowrap" }}>
               {option.ap_no}
             </span>
-
-            {/* DESCRIPTION – flexible */}
-            <span
-              style={{
-                width: "75%",
-                whiteSpace: "normal",
-                lineHeight: 1.3,
-              }}
-            >
+            <span style={{ width: "75%", lineHeight: 1.3 }}>
               {option.ap_name}
             </span>
           </li>
@@ -171,14 +169,26 @@ function BookActions() {
               label="Borrower Name"
               value={issuedToName}
               disabled={available <= 0}
-              onChange={(e) => setIssuedToName(e.target.value)}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "" || nameRegex.test(v)) {
+                  setIssuedToName(v);
+                }
+              }}
+              helperText="Start with capital, max 12 letters"
             />
 
             <TextField
               label="Borrower Number"
               value={issuedToNumber}
               disabled={available <= 0}
-              onChange={(e) => setIssuedToNumber(e.target.value)}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (numberRegex.test(v)) {
+                  setIssuedToNumber(v);
+                }
+              }}
+              helperText="Alphanumeric, max 10 characters"
             />
 
             <TextField
@@ -186,10 +196,7 @@ function BookActions() {
               label="Quantity"
               value={qty}
               disabled={available <= 0}
-              inputProps={{
-                min: 1,
-                max: available,
-              }}
+              inputProps={{ min: 1, max: available }}
               onChange={(e) => setQty(Number(e.target.value))}
             />
 
